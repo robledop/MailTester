@@ -1,8 +1,62 @@
 ﻿<Window x:Class="MailTester.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        
-    </Grid>
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		Title="MainWindow"
+		Height="507.854"
+		Width="701.582">
+	<Grid>
+		<Label Content="From:&#xD;&#xA;"
+			   HorizontalAlignment="Left"
+			   Margin="22,21,0,0"
+			   VerticalAlignment="Top"
+			   Height="26"
+			   Width="45" />
+		<Label Content="To:"
+			   HorizontalAlignment="Left"
+			   Margin="22,52,0,0"
+			   VerticalAlignment="Top" />
+		<TextBox x:Name="FromTextBox"
+				 HorizontalAlignment="Left"
+				 Height="23"
+				 Margin="72,25,0,0"
+				 TextWrapping="Wrap"
+				 VerticalAlignment="Top"
+				 Width="448" />
+		<TextBox x:Name="ToTextBox"
+				 HorizontalAlignment="Left"
+				 Height="23"
+				 Margin="72,55,0,0"
+				 TextWrapping="Wrap"
+				 VerticalAlignment="Top"
+				 Width="448" />
+		<Button x:Name="Button1"
+				Content="Find MX Records"
+				HorizontalAlignment="Left"
+				Margin="533,21,0,0"
+				VerticalAlignment="Top"
+				Width="110"
+				Height="53"
+				Click="Button1_Click" />
+		<ComboBox x:Name="MxComboBox"
+				  HorizontalAlignment="Left"
+				  Margin="72,83,0,0"
+				  VerticalAlignment="Top"
+				  Width="448" />
+		<Label Content="MX:"
+			   HorizontalAlignment="Left"
+			   Margin="22,83,0,0"
+			   VerticalAlignment="Top" />
+		<TextBlock x:Name="StatusTextBlock"
+				   HorizontalAlignment="Left"
+				   Height="327"
+				   Margin="22,140,0,0"
+				   TextWrapping="Wrap"
+				   VerticalAlignment="Top"
+				   Width="662" />
+		<Label Content="Status:"
+			   HorizontalAlignment="Left"
+			   Margin="22,109,0,0"
+			   VerticalAlignment="Top" />
+
+	</Grid>
 </Window>
