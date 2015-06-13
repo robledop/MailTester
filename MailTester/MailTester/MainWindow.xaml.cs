@@ -1,19 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using ARSoft.Tools.Net.Dns;
+using MailTester.ARSoft.Tools.Net.Dns;
+using MailTester.ARSoft.Tools.Net.Dns.DnsRecord;
 
 namespace MailTester
 {
@@ -27,55 +17,93 @@ namespace MailTester
 			InitializeComponent();
 		}
 
-		private void Button1_Click(object sender, RoutedEventArgs e)
+		private async void Button1_Click(object sender, RoutedEventArgs e)
 		{
-			if ((string)Button1.Content == "Test")
+			await Task.Run(async () =>
 			{
-				string response = "";
-				var mxRecord = MxComboBox.SelectedItem as MxRecord;
-				var helper = new SocketHelper(mxRecord.ExchangeDomainName, 25);
-
-				var senderDomain = FromTextBox.Text.Split('@').Last();
-
-				helper.SendCommand("EHLO " + senderDomain);
-				StatusTextBlock.Text += "EHLO " + senderDomain + "\r\n";
-				response = helper.GetFullResponse();
-				StatusTextBlock.Text += response;
-
-				helper.SendCommand("MAIL FROM:<" + FromTextBox.Text + ">");
-				StatusTextBlock.Text += "MAIL FROM:<" + FromTextBox.Text + ">\r\n";
-				response = helper.GetFullResponse();
-				StatusTextBlock.Text += response;
-
-				helper.SendCommand("RCPT TO:<" + ToTextBox.Text + ">");
-				StatusTextBlock.Text += "RCPT TO:<" + ToTextBox.Text + ">\r\n";
-				StatusTextBlock.Text += helper.GetFullResponse();
-
-				helper.SendCommand("Data");
-				StatusTextBlock.Text += helper.GetFullResponse();
-
-				helper.SendCommand("\r\n");
-				helper.SendCommand(".");
-				helper.SendCommand("\r\n");
-				StatusTextBlock.Text += helper.GetFullResponse();
-
-				helper.SendCommand("QUIT");
-			}
-			else
-			{
-				var domainName = ToTextBox.Text.Split('@').Last();
-				var response = DnsClient.Default.Resolve(domainName, RecordType.Mx);
-				var records = response.AnswerRecords.OfType<MxRecord>();
-
-				foreach (var mxRecord in records)
+				try
 				{
-					MxComboBox.Items.Add(mxRecord);
+					var domainName = await Dispatcher.InvokeAsync(() => ToTextBox.Text.Split('@').Last());
+					var response = DnsClient.Default.Resolve(domainName, RecordType.Mx);
+					var records = response.AnswerRecords.OfType<MxRecord>();
+
+					await Dispatcher.InvokeAsync(() =>
+					{
+						MxComboBox.Items.Clear();
+					});
+
+					foreach (var mxRecord in records)
+					{
+						await Dispatcher.InvokeAsync(() => MxComboBox.Items.Add(mxRecord));
+					}
+
+					await Dispatcher.InvokeAsync(() =>
+					{
+						MxComboBox.SelectedIndex = 0;
+					});
+
+					await Dispatcher.InvokeAsync(() => TestButton.IsEnabled = true);
+				}
+				catch (Exception ex)
+				{
+					MessageBox.Show(ex.Message);
 				}
 
-				MxComboBox.SelectedIndex = 0;
-				Button1.Content = "Test";
-			}
+			});
 
+		}
+
+		private async void TestButton_Click(object sender, RoutedEventArgs e)
+		{
+			await Task.Run(async () =>
+			{
+				try
+				{
+					await Dispatcher.InvokeAsync(() => StatusTextBlock.Text = "");
+					string response = "";
+					var mxRecord = await Dispatcher.InvokeAsync(() => MxComboBox.SelectedItem as MxRecord);
+					var helper = new SocketHelper(mxRecord.ExchangeDomainName, 25);
+
+					var senderDomain = await Dispatcher.InvokeAsync(() => FromTextBox.Text.Split('@').Last());
+
+					helper.SendCommand("EHLO " + senderDomain);
+					await Dispatcher.InvokeAsync(() => StatusTextBlock.Text += "EHLO " + senderDomain + "\r\n");
+					response = await helper.GetFullResponse();
+					await Dispatcher.InvokeAsync(() => StatusTextBlock.Text += response);
+
+					response = await helper.GetFullResponse();
+					await Dispatcher.InvokeAsync(() => StatusTextBlock.Text += response);
+
+					helper.SendCommand("MAIL FROM:<" + await Dispatcher.InvokeAsync(() => FromTextBox.Text + ">"));
+					await Dispatcher.InvokeAsync(() => StatusTextBlock.Text += "MAIL FROM:<" + FromTextBox.Text + ">\r\n");
+					response = await helper.GetFullResponse();
+					await Dispatcher.InvokeAsync(() => StatusTextBlock.Text += response);
+
+					helper.SendCommand("RCPT TO:<" + await Dispatcher.InvokeAsync(() => ToTextBox.Text + ">"));
+					await Dispatcher.InvokeAsync(() => StatusTextBlock.Text += "RCPT TO:<" + ToTextBox.Text + ">\r\n");
+					response = await helper.GetFullResponse();
+					await Dispatcher.InvokeAsync(() => StatusTextBlock.Text += response);
+
+					helper.SendCommand("DATA");
+					helper.SendCommand("Subject:Test Message");
+					helper.SendCommand("\r\n");
+					helper.SendCommand("Test Message");
+					helper.SendCommand("\r\n");
+					helper.SendCommand(".");
+					helper.SendCommand("\r\n");
+					response = await helper.GetFullResponse();
+					await Dispatcher.InvokeAsync(() => StatusTextBlock.Text += response);
+
+					helper.SendCommand("QUIT");
+					response = await helper.GetFullResponse();
+					await Dispatcher.InvokeAsync(() => StatusTextBlock.Text += response);
+				}
+				catch (Exception ex)
+				{
+					MessageBox.Show(ex.Message);
+				}
+
+			});
 		}
 	}
 }

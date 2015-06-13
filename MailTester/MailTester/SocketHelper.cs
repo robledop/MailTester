@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace MailTester
 {
@@ -60,7 +62,7 @@ namespace MailTester
 		public int GetResponseState()
 		{
 			if (resp.Length >= 3 && IsNumber(resp[0])
-			    && IsNumber(resp[1]) && IsNumber(resp[2]))
+				&& IsNumber(resp[1]) && IsNumber(resp[2]))
 				state = Convert.ToInt32(resp.Substring(0, 3));
 
 			return state;
@@ -71,17 +73,20 @@ namespace MailTester
 			return c >= '0' && c <= '9';
 		}
 
-		public string GetFullResponse()
+		public async Task<string> GetFullResponse()
 		{
-			System.Text.StringBuilder sb = new System.Text.StringBuilder();
-			sb.Append(RecvResponse());
-			sb.Append("\r\n");
-			while (HaveNextResponse())
+			return await Task.Run<string>(() =>
 			{
+				System.Text.StringBuilder sb = new System.Text.StringBuilder();
 				sb.Append(RecvResponse());
 				sb.Append("\r\n");
-			}
-			return sb.ToString();
+				while (HaveNextResponse())
+				{
+					sb.Append(RecvResponse());
+					sb.Append("\r\n");
+				}
+				return sb.ToString();
+			});
 		}
 
 		public bool HaveNextResponse()
