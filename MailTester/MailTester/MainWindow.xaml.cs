@@ -23,6 +23,7 @@ namespace MailTester
 			{
 				try
 				{
+					await Dispatcher.InvokeAsync(() => ProgressBar1.Visibility = Visibility.Visible);
 					var domainName = await Dispatcher.InvokeAsync(() => ToTextBox.Text.Split('@').Last());
 					var response = DnsClient.Default.Resolve(domainName, RecordType.Mx);
 					var records = response.AnswerRecords.OfType<MxRecord>();
@@ -43,9 +44,11 @@ namespace MailTester
 					});
 
 					await Dispatcher.InvokeAsync(() => TestButton.IsEnabled = true);
+					await Dispatcher.InvokeAsync(() => ProgressBar1.Visibility = Visibility.Collapsed);
 				}
 				catch (Exception ex)
 				{
+					Dispatcher.Invoke(() => ProgressBar1.Visibility = Visibility.Collapsed);
 					MessageBox.Show(ex.Message);
 				}
 
@@ -59,6 +62,7 @@ namespace MailTester
 			{
 				try
 				{
+					await Dispatcher.InvokeAsync(() => ProgressBar1.Visibility = Visibility.Visible);
 					await Dispatcher.InvokeAsync(() => StatusTextBlock.Text = "");
 					string response = "";
 					var mxRecord = await Dispatcher.InvokeAsync(() => MxComboBox.SelectedItem as MxRecord);
@@ -97,9 +101,11 @@ namespace MailTester
 					helper.SendCommand("QUIT");
 					response = await helper.GetFullResponse();
 					await Dispatcher.InvokeAsync(() => StatusTextBlock.Text += response);
+					await Dispatcher.InvokeAsync(() => ProgressBar1.Visibility = Visibility.Collapsed);
 				}
 				catch (Exception ex)
 				{
+					Dispatcher.Invoke(() => ProgressBar1.Visibility = Visibility.Collapsed);
 					MessageBox.Show(ex.Message);
 				}
 

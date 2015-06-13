@@ -87,6 +87,13 @@
 				 VerticalScrollBarVisibility="Auto"
 				 TextWrapping="Wrap"
 				 VerticalAlignment="Stretch" />
+		<ProgressBar Grid.Column="2"
+					Name="ProgressBar1"
+					 HorizontalAlignment="Stretch"
+					 Grid.Row="2"
+					 VerticalAlignment="Stretch"
+					 IsIndeterminate="True"
+					 Visibility="Collapsed" />
 
 	</Grid>
 </Window>
