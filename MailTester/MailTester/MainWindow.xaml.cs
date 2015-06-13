@@ -89,6 +89,7 @@ namespace MailTester
 					await Dispatcher.InvokeAsync(() => StatusTextBlock.Text += response);
 
 					helper.SendCommand("DATA");
+					helper.SendCommand("to:" + await Dispatcher.InvokeAsync(()=>ToTextBox.Text));
 					helper.SendCommand("Subject:Test Message");
 					helper.SendCommand("\r\n");
 					helper.SendCommand("Test Message");
